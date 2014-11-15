@@ -13,6 +13,12 @@ import java.util.Vector;
  */
 public class TestHarness {
 
+	//default constructor
+	public TestHarness()
+	{
+		
+	}
+	
 	/**
 	 * 
 	 * @param args
@@ -44,7 +50,7 @@ public class TestHarness {
 		
 		//create SudokuSolver object and
 		//call hill Climber function and it will return the solution state
-		agent = new SudokuSolver();
+		agent = new SudokuSolver(board.getIndexesOfInitialBoard());
 		solState = agent.hillClimber(board.getSudokuBoard());
 		
 		//print out the solution state
