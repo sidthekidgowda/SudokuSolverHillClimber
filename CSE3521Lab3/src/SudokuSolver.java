@@ -1,8 +1,10 @@
 import java.io.BufferedReader;
 import java.io.StringReader;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.Vector;
 
@@ -14,7 +16,6 @@ import java.util.Vector;
  */
 public class SudokuSolver {
 	private int numOfSteps;
-	private Vector<Integer> initState;
 	private Map<Integer,Integer> dontChangeIndexes;
 	
 	/**
@@ -28,7 +29,7 @@ public class SudokuSolver {
 	public SudokuSolver(Map<Integer,Integer>indexes)
 	{
 		this.numOfSteps = 0;
-		this.initState = new Vector<Integer>();
+		
 		this.dontChangeIndexes = indexes;
 		
 	}
@@ -43,24 +44,106 @@ public class SudokuSolver {
 	 */
 	public Vector<Integer>hillClimber(Vector<Integer> problem)
 	{
-		//create the initial state that will be used when random restart is called
-		this.initState = new Vector<Integer>(problem);
 		Vector<Integer> solution = problem;
 		
 		boolean randomRestart = true;
-		int currentValue = this.calculateNumOfConflicts(solution);
+		boolean keepHillClimbing = true;
+		int currentConflictValue;
+		
 		/**
 		 * Continue looping until a solution is found
 		 */
 		while(randomRestart)
 		{
-			
+			while(keepHillClimbing)
+			{
+				this.numOfSteps++;
+				
+				//print out state chosen
+				System.out.println(solution.toString());
+				
+				//print out number of conflicts for the given state
+				currentConflictValue = this.calculateNumOfConflicts(solution);
+				System.out.println(currentConflictValue);
+				
+				//print out number of iterations taken so far
+				System.out.println(this.numOfSteps);
+				
+				//create successor states in a list
+				Map<Integer,Vector<Integer>> nStatesAndConflicts = this.generateNeighborStatesAndConflicts(solution);
+				
+				//find the neighbor with the lowest conflict value
+				int lowest = 100;//arbitary number to find lowest
+				for(Integer key: nStatesAndConflicts.keySet())
+				{
+					int current = key;
+					if(current < lowest)
+						lowest = current;
+				}
+
+				
+				//compare the current conflict value and neighbor conflict value
+				//if the neighbor conflict value is less than the current conflict value
+				//then set current equal to neighbor
+				//else get out of while loop
+				if(lowest < currentConflictValue)
+					solution = nStatesAndConflicts.get(lowest);
+				else
+					keepHillClimbing = false;
+
+			}
+
+			currentConflictValue = this.calculateNumOfConflicts(solution);
+			//check and see if hill climber hit a local minimum or not
+			if(currentConflictValue == 0)//solution found
+			{
+				randomRestart = false;
+			}
+			else
+			{
+				//create a new intial State and restart hill climbing until solution is found
+				solution = Sudoku.createNewInitialBoard(solution, this.dontChangeIndexes);
+				currentConflictValue = this.calculateNumOfConflicts(solution);
+				keepHillClimbing = true;
+			}
 			
 		}
-		
 		return solution;
 	}
 	
+	/**
+	 * 
+	 * @param initState
+	 * @return
+	 */
+	public Map<Integer,Vector<Integer>> generateNeighborStatesAndConflicts(Vector<Integer>initState)
+	{
+		Map<Integer,Vector<Integer>> neighbors = new HashMap<Integer,Vector<Integer>>();
+
+		for(int i = 0; i < initState.size(); i++)
+		{
+			//dont replace initial numbers
+			if(!this.dontChangeIndexes.containsKey(i))
+			{
+				//create a neighbor state
+				Vector<Integer> neighborState = new Vector<Integer>(initState);
+				
+				//get random number
+				Random ran = new Random();
+				int ranNum = ran.nextInt(4)+1;
+				
+				//replace number and add to neighbors
+				neighborState.set(i, ranNum);
+				
+				int conflict = this.calculateNumOfConflicts(neighborState);
+				neighbors.put(conflict, neighborState);
+			}
+		}
+
+		return neighbors;
+		
+	}
+		
 	/**
 	 * This evaluation function scores each state vector based on how well it
 	 * fits the sudoku board.
@@ -71,7 +154,7 @@ public class SudokuSolver {
 	public int calculateNumOfConflicts(Vector<Integer> state)
 	{
 		int conflict = 0;
-		//check
+		
 		Integer arr[] = {1,2,3,4};
 		
 		Set<Integer> checkSet = new HashSet<Integer>(Arrays.asList(arr));
@@ -219,6 +302,9 @@ public class SudokuSolver {
 		int conflicts = agent.calculateNumOfConflicts(testBoard.getSudokuBoard());
 		
 		System.out.println("\n"+conflicts);
+		
+		
+		
 		
 		
 	}
