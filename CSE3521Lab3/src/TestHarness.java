@@ -39,10 +39,6 @@ public class TestHarness {
 			System.exit(1);
 		}
 		
-		
-		/*
-		 * Now create the hill Climber 
-		 */
 	}
 
 }
