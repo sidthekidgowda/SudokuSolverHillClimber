@@ -8,7 +8,7 @@ import java.util.Vector;
 
 
 /**
- * Class Sudoku represents the Sudoku board as the hill Climber function solves the Sudoku puzzle
+ * Class Sudoku represents the Sudoku board using the Vector class in a 1 dimensional format
  * @author Sid
  *
  */
@@ -16,8 +16,6 @@ public class Sudoku {
 
 	//1D board represents the sudoku board
 	private Vector<Integer> board;
-	//1D board represents the initalBoard when the random restart method is called
-	private Vector<Integer> initalBoard;
 	
 	//this will hold the indexes of the original positions of the Sudoku board
 	private Map<Integer,Integer> mapIndexToInitialBoard;
@@ -72,9 +70,7 @@ public class Sudoku {
 					
 				}
 			}
-			
-			this.initalBoard = this.board; 
-			
+
 			//populate zeros into a number from 1-4
 			this.populateInitialState();
 			
@@ -104,6 +100,16 @@ public class Sudoku {
 			}
 		}
 	}
+	
+	/**
+	 * This method returns the SudokuBoard
+	 * @return
+	 */
+	public Vector<Integer>getSudokuBoard()
+	{
+		return this.board;
+	}
+	
 	
 	/**
 	 * This function pretty prints the sudoku board. Used for testing only.

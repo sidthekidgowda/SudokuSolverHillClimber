@@ -1,6 +1,7 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Vector;
 
 /**
  * Class TestHarness reads the sudoku problem from the file.
@@ -18,7 +19,9 @@ public class TestHarness {
 	 */
 	public static void main(String[] args) {
 		
-		Sudoku board;
+		Sudoku board = null;
+		SudokuSolver agent;
+		Vector<Integer> solState;
 		
 		if(args.length != 2)
 		{
@@ -37,6 +40,29 @@ public class TestHarness {
 		{
 			System.err.println("Cannot read the input file" + args[0]);
 			System.exit(1);
+		}
+		
+		//create SudokuSolver object and
+		//call hill Climber function and it will return the solution state
+		agent = new SudokuSolver();
+		solState = agent.hillClimber(board.getSudokuBoard());
+		
+		//print out the solution state
+		for(int i = 0; i < solState.size();i++)
+		{
+			if(i % 4 == 0 && i!=0)
+			{
+				System.out.print("|\n");
+				System.out.print("|"+solState.get(i));
+			}
+			else if(i == 15)
+			{
+				System.out.println("|"+solState.get(i)+"|");
+			}
+			else
+			{
+				System.out.print("|"+solState.get(i));
+			}
 		}
 		
 	}
