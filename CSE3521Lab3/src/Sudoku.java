@@ -71,33 +71,13 @@ public class Sudoku {
 				}
 			}
 
-			//populate zeros into a number from 1-4
-			this.populateInitialState();
-			
+			//populate zeros into a random number from 1-4
+			Sudoku.createNewInitialBoard(this.board, this.mapIndexToInitialBoard);
 		}
 		catch(IOException e)
 		{
 			System.err.println("Could not read the input: " + e.getMessage());
 			System.exit(1);
-		}
-	}
-	
-	/**
-	 * This method will populate all the zeros into a number from 1-4
-	 */
-	private void populateInitialState()
-	{
-		//create random number object
-		Random ran = new Random();
-		
-		for(int i = 0; i < this.board.size();i++)
-		{
-			int ranNum = ran.nextInt(4)+1;
-			
-			if(!this.mapIndexToInitialBoard.containsKey(i))
-			{
-				this.board.set(i, ranNum);
-			}
 		}
 	}
 	
@@ -108,6 +88,40 @@ public class Sudoku {
 	public Vector<Integer>getSudokuBoard()
 	{
 		return this.board;
+	}
+	
+	/**
+	 * This method returns the original indexes of the initial board
+	 * @return
+	 */
+	public Map<Integer, Integer>getIndexesOfInitialBoard()
+	{
+		return this.mapIndexToInitialBoard;
+	}
+	
+	
+	/**
+	 * This static method creates a new initial state of the SudokuBoard
+	 * 
+	 * @param board is the incoming Sudoku Board
+	 * @param indexes are the initial indexes
+	 * @return
+	 */
+	public static Vector<Integer> createNewInitialBoard(Vector<Integer> board, Map<Integer,Integer>indexes)
+	{
+		for(int i =0; i < board.size(); i++)
+		{
+			if(!indexes.containsKey(i))
+			{
+				Random ran = new Random();
+				int ranNum = ran.nextInt(4)+1;
+				
+				//replace number
+				board.set(i, ranNum);
+			}
+		}
+		
+		return board;
 	}
 	
 	

@@ -303,7 +303,24 @@ public class SudokuSolver {
 		
 		System.out.println("\n"+conflicts);
 		
-		
+		Vector<Integer>solState = agent.hillClimber(testBoard.getSudokuBoard());
+		//print out the solution state
+		for(int i = 0; i < solState.size();i++)
+		{
+			if(i % 4 == 0 && i!=0)
+			{
+				System.out.print("|\n");
+				System.out.print("|"+solState.get(i));
+			}
+			else if(i == 15)
+			{
+				System.out.println("|"+solState.get(i)+"|");
+			}
+			else
+			{
+				System.out.print("|"+solState.get(i));
+			}
+		}
 		
 		
 		
