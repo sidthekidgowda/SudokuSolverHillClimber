@@ -18,10 +18,9 @@ public class SudokuSolver {
 	private int numOfSteps;
 	private Map<Integer,Integer> dontChangeIndexes;
 	
-	/**
-	 * Constructor initializes the number of steps taken
-	 */
-	
+	//random number generator
+	private Random ran;
+		
 	/**
 	 * Constructor initializes the number of steps taken
 	 * @param indexes
@@ -32,6 +31,7 @@ public class SudokuSolver {
 		
 		this.dontChangeIndexes = indexes;
 		
+		this.ran = new Random();
 	}
 	
 	/**
@@ -60,20 +60,21 @@ public class SudokuSolver {
 				this.numOfSteps++;
 				
 				//print out state chosen
-				System.out.println(solution.toString());
+				System.out.println("Current State: "+solution.toString());
 				
 				//print out number of conflicts for the given state
 				currentConflictValue = this.calculateNumOfConflicts(solution);
-				System.out.println(currentConflictValue);
+				System.out.println("Number of conflicts: " +currentConflictValue);
 				
 				//print out number of iterations taken so far
-				System.out.println(this.numOfSteps);
+				System.out.println("Number of iterations taken: " +this.numOfSteps);
+				System.out.println("");
 				
 				//create successor states in a list
 				Map<Integer,Vector<Integer>> nStatesAndConflicts = this.generateNeighborStatesAndConflicts(solution);
 				
 				//find the neighbor with the lowest conflict value
-				int lowest = 100;//arbitary number to find lowest
+				int lowest = 100;//arbitrary number to find lowest
 				for(Integer key: nStatesAndConflicts.keySet())
 				{
 					int current = key;
@@ -94,16 +95,24 @@ public class SudokuSolver {
 			}
 
 			currentConflictValue = this.calculateNumOfConflicts(solution);
-			//check and see if hill climber hit a local minimum or not
-			if(currentConflictValue == 0)//solution found
+			
+			//check and see if hill climber hit a local minimum or global min
+			if(currentConflictValue == 0)
 			{
 				randomRestart = false;
 			}
 			else
 			{
-				//create a new intial State and restart hill climbing until solution is found
+				//create a new intial State
 				solution = Sudoku.createNewInitialBoard(solution, this.dontChangeIndexes);
-				currentConflictValue = this.calculateNumOfConflicts(solution);
+				int tempConflictValue = this.calculateNumOfConflicts(solution);
+				
+//				while(tempConflictValue > currentConflictValue)
+//				{
+//					solution = Sudoku.createNewInitialBoard(solution, this.dontChangeIndexes);
+//					tempConflictValue = this.calculateNumOfConflicts(solution);
+//				}
+				currentConflictValue = tempConflictValue;
 				keepHillClimbing = true;
 			}
 			
@@ -119,7 +128,7 @@ public class SudokuSolver {
 	public Map<Integer,Vector<Integer>> generateNeighborStatesAndConflicts(Vector<Integer>initState)
 	{
 		Map<Integer,Vector<Integer>> neighbors = new HashMap<Integer,Vector<Integer>>();
-
+		
 		for(int i = 0; i < initState.size(); i++)
 		{
 			//dont replace initial numbers
@@ -128,9 +137,8 @@ public class SudokuSolver {
 				//create a neighbor state
 				Vector<Integer> neighborState = new Vector<Integer>(initState);
 				
-				//get random number
-				Random ran = new Random();
-				int ranNum = ran.nextInt(4)+1;
+
+				int ranNum = this.ran.nextInt(4)+1;
 				
 				//replace number and add to neighbors
 				neighborState.set(i, ranNum);
@@ -161,7 +169,13 @@ public class SudokuSolver {
 
 		//calculate row conflicts
 		for(int i = 0; i < state.size();i++)
-		{			
+		{	
+			if(i % 4 == 0 && i!=0)
+			{
+				//reinitialize set
+				checkSet.clear();
+				checkSet.addAll(Arrays.asList(arr));
+			}
 			if(checkSet.contains(state.get(i)))
 			{
 				//remove element
@@ -173,13 +187,6 @@ public class SudokuSolver {
 				conflict++;
 			}
 			
-			if(i % 4 == 0)
-			{
-				//reinitialize set
-				checkSet.clear();
-				checkSet.addAll(Arrays.asList(arr));
-			}
-			
 		}
 		//reinitialize set
 		checkSet.clear();
@@ -188,19 +195,21 @@ public class SudokuSolver {
 		//calculate col conflicts
 		for(int i = 0; i < 4;i++)
 		{
+			int index = i;
 			for(int j = 0; j < state.size(); j+=4)
 			{
-				if(checkSet.contains(state.get(i)))
+				int x = state.get(index);
+				if(checkSet.contains(x))
 				{
 					//remove element
-					checkSet.remove(state.get(i));
+					checkSet.remove(x);
 				}
 				else
 				{
 					//conflict
 					conflict++;
-					break;
 				}
+				index+=4;
 			}
 			//reinitialize set
 			checkSet.clear();
@@ -296,14 +305,12 @@ public class SudokuSolver {
 		SudokuSolver agent;
 
 		testBoard = new Sudoku(new BufferedReader(new StringReader("4\n24**\n*3**\n**4*\n**31")));
-		testBoard.printBoard();
 		
 		agent = new SudokuSolver(testBoard.getIndexesOfInitialBoard());
-		int conflicts = agent.calculateNumOfConflicts(testBoard.getSudokuBoard());
-		
-		System.out.println("\n"+conflicts);
-		
+
 		Vector<Integer>solState = agent.hillClimber(testBoard.getSudokuBoard());
+		
+		System.out.println("Solution State");
 		//print out the solution state
 		for(int i = 0; i < solState.size();i++)
 		{
@@ -321,9 +328,7 @@ public class SudokuSolver {
 				System.out.print("|"+solState.get(i));
 			}
 		}
-		
-		
-		
+
 	}
 	
 }
