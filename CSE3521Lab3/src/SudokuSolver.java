@@ -8,7 +8,9 @@ import java.util.Vector;
 /**
  * Class SudokuSolver solves the SudokuBoard using the hill Climber function combined with 
  * the random restart technique so a goal state will be found
- * @author Sid
+ * 
+ * @author Sid Gowda
+ * 11/17/2014
  *
  */
 public class SudokuSolver {

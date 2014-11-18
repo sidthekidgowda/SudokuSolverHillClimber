@@ -1,5 +1,6 @@
 import java.io.BufferedReader;
-import java.io.StringReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -14,7 +15,8 @@ import java.util.Vector;
  * Class SudokuSolverGA solves the SudokuBoard using the Genetic Algorithm using the 1-Point
  * Crossover method and the Roulette Selection method
  * 
- * @author Sid
+ * @author Sid Gowda
+ * 11/17/2014
  *
  */
 public class SudokuSolverGA {
@@ -31,8 +33,9 @@ public class SudokuSolverGA {
 	
 	private int generation;
 	
-	//initial population set to 150
-	private static int popSize = 150;
+	//initial population set to 750
+	//big population allows the solution to always converge
+	private static int popSize = 750;
 	
 	private static Random ran;
 	
@@ -515,21 +518,39 @@ public class SudokuSolverGA {
 	
 
 	/**
-	 * Main method to test
+	 * Main method runs the Genetic Algorithm after reading in file input
 	 * @param args
 	 */
 	public static void main(String[] args)
 	{
 		
-		Sudoku testBoard;
+		Sudoku testBoard = null;
 		SudokuSolverGA agent;
+		Vector<Integer> solState;
 		
-		testBoard = new Sudoku(new BufferedReader(new StringReader("4\n24**\n*3**\n**4*\n**31")));
+		if(args.length != 1)
+		{
+			System.err.println("Too little arguments. Need an input file.");
+			System.exit(1);//exit the program
+		}
+		try
+		{
+			/*
+			 * parse the input file and create the initial Sudoku board
+			 */
+			testBoard = new Sudoku(new BufferedReader(new FileReader(args[0])));
+		}
+		catch(IOException e)
+		{
+			System.err.println("Cannot read the input file" + args[0]);
+			System.exit(1);
+		}
+		
 		agent = new SudokuSolverGA(testBoard.getSudokuBoard(),testBoard.getIndexesOfInitialBoard());
 		
-		Vector<Integer> solState = agent.geneticAlgorithm();
+		solState = agent.geneticAlgorithm();
 		
-		System.out.println("Solution State using Genetic Algorithm");
+		System.out.println("Solution State using Genetic Algorithm:\n");
 		//print out the solution state
 		for(int i = 0; i < solState.size();i++)
 		{
