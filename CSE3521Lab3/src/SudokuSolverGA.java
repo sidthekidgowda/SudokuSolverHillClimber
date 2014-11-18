@@ -2,7 +2,6 @@ import java.io.BufferedReader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -24,17 +23,16 @@ public class SudokuSolverGA {
 	private Map<Integer,Integer>dontChangeIndexes;
 	private List<Integer> fitnessOfEachIndividual;
 	
+
+	
 	private int bestFitIndex, worstFitIndex;
 	
 	private List<Vector<Integer>> population;
 	
 	private int generation;
 	
-	//initial population set to 1000
-	private static int popSize = 1000;
-	
-	//mutation rate set to 1/LengthOfVector
-	private static double mutateRate = 1/16;
+	//initial population set to 64
+	private static int popSize = 64;
 	
 	private static Random ran;
 	
@@ -58,6 +56,7 @@ public class SudokuSolverGA {
 		
 		this.population = new ArrayList<Vector<Integer>>();
 		this.fitnessOfEachIndividual = new ArrayList<Integer>();
+		
 		
 		this.bestFitIndex = this.worstFitIndex = 0;
 		
@@ -83,9 +82,10 @@ public class SudokuSolverGA {
 		{
 			List<Vector<Integer>> newPopulation = new ArrayList<Vector<Integer>>();
 			
-			System.out.println("Generation :" + this.generation);
+			System.out.println("Generation: " + this.generation);
 			System.out.println("Best Fit Individual in the Population: " + this.bestFitIndividual() + " and Score: " + this.fitnessOfEachIndividual.get(bestFitIndex));
 			System.out.println("Worst Fit Individual in the Population: " + this.worstFitIndividual() + " and Score: "+ this.fitnessOfEachIndividual.get(worstFitIndex));
+			System.out.println("");
 			
 			for(int i = 0; i < popSize; i++)
 			{
@@ -107,7 +107,9 @@ public class SudokuSolverGA {
 				Vector<Integer> child = this.reproduceChild(parent1,parent2);
 				
 				//if(small random probabily)then child = MUTATE(child)
-				if(ran.nextDouble() <= mutateRate)
+				//probability to mutate is 1/16
+				boolean mutate = new Random().nextInt(16)+1 == 1;
+				if(mutate)
 				{
 					child = this.mutateChild(child);
 				}
@@ -131,8 +133,6 @@ public class SudokuSolverGA {
 				int index = this.fitnessOfEachIndividual.lastIndexOf(120);
 				
 				solBoard = this.population.get(index);
-				
-				System.out.println("Solution State: " + solBoard);
 				solutionFound = true;
 			}
 			
@@ -152,7 +152,7 @@ public class SudokuSolverGA {
 		for(int i = 0; i < popSize; i++)
 		{
 			Vector<Integer> board = new Vector<Integer>(Sudoku.createNewInitialBoard(this.sudokuBoard, this.dontChangeIndexes));
-			//System.out.println(board);
+		
 			this.population.add(board);
 		}
 		
@@ -180,13 +180,6 @@ public class SudokuSolverGA {
 			Vector<Integer> board = this.population.get(i);
 			
 			fitness = sumCorrectRows(board) + sumCorrectCols(board) + sumCorrectSquares(board);
-//			System.out.println("Board: " + board);
-//			System.out.println("Sum Of Rows: " +sumCorrectRows(board));
-//			System.out.println("Sum of cols: " + sumCorrectCols(board));
-//			System.out.println("Sum of Squares: " + sumCorrectSquares(board));
-//			System.out.println("Fitness Score: " + fitness);
-//			
-//			System.out.println("");
 			
 			this.fitnessOfEachIndividual.add(fitness);
 			
@@ -389,7 +382,7 @@ public class SudokuSolverGA {
 	 * @return parent selected according to its fitness
 	 */
 	private Vector<Integer>randomSelection()
-	{
+	{		
 		Vector<Integer> parent = null;
 		
 		int sum = 0;
@@ -523,6 +516,7 @@ public class SudokuSolverGA {
 		
 		return this.population.get(this.worstFitIndex);
 	}
+	
 
 	/**
 	 * Main method to test
@@ -539,7 +533,7 @@ public class SudokuSolverGA {
 		
 		Vector<Integer> solState = agent.geneticAlgorithm();
 		
-		System.out.println("Solution State");
+		System.out.println("Solution State using Genetic Algorithm");
 		//print out the solution state
 		for(int i = 0; i < solState.size();i++)
 		{
