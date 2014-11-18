@@ -1,11 +1,8 @@
 import java.io.BufferedReader;
 import java.io.StringReader;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 import java.util.Vector;
 
 /**
@@ -118,12 +115,6 @@ public class SudokuSolver {
 				//create a new intial State
 				solution = Sudoku.createNewInitialBoard(solution, this.dontChangeIndexes);
 				int tempConflictValue = Sudoku.calculateNumOfConflicts(solution);
-				
-//				while(tempConflictValue > currentConflictValue)
-//				{
-//					solution = Sudoku.createNewInitialBoard(solution, this.dontChangeIndexes);
-//					tempConflictValue = this.calculateNumOfConflicts(solution);
-//				}
 				currentConflictValue = tempConflictValue;
 				keepHillClimbing = true;
 			}
@@ -133,11 +124,11 @@ public class SudokuSolver {
 	}
 	
 	/**
-	 * 
+	 * This method generates new neighbors and states
 	 * @param initState
 	 * @return
 	 */
-	public Map<Vector<Integer>,Integer> generateNeighborStatesAndConflicts(Vector<Integer>initState)
+	private Map<Vector<Integer>,Integer> generateNeighborStatesAndConflicts(Vector<Integer>initState)
 	{
 		Map<Vector<Integer>,Integer> neighbors = new HashMap<Vector<Integer>,Integer>();
 		
@@ -178,7 +169,7 @@ public class SudokuSolver {
 
 		Vector<Integer>solState = agent.hillClimber(testBoard.getSudokuBoard());
 		
-		System.out.println("Solution State");
+		System.out.println("Solution State using Hill Climber");
 		//print out the solution state
 		for(int i = 0; i < solState.size();i++)
 		{

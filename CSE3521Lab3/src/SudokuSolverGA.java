@@ -31,8 +31,8 @@ public class SudokuSolverGA {
 	
 	private int generation;
 	
-	//initial population set to 64
-	private static int popSize = 64;
+	//initial population set to 150
+	private static int popSize = 150;
 	
 	private static Random ran;
 	
@@ -93,16 +93,12 @@ public class SudokuSolverGA {
 				Vector<Integer> parent1 = this.randomSelection();
 				Vector<Integer> parent2 = this.randomSelection();
 				
-				//System.out.println("Parent 1: " + parent1);
-				
 				//make sure the two parents are different
 				while(parent1.equals(parent2))
 				{
 					parent2 = this.randomSelection();
 				}
-				
-				//System.out.println("Parent 2: " + parent2);
-				
+
 				//crossover
 				Vector<Integer> child = this.reproduceChild(parent1,parent2);
 				
