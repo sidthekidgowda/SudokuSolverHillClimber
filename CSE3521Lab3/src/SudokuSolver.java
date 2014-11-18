@@ -19,7 +19,12 @@ public class SudokuSolver {
 	private Map<Integer,Integer> dontChangeIndexes;
 	
 	//random number generator
-	private Random ran;
+	private static Random ran;
+	
+	static
+	{
+		SudokuSolver.ran = new Random();
+	}
 		
 	/**
 	 * Constructor initializes the number of steps taken
@@ -30,8 +35,6 @@ public class SudokuSolver {
 		this.numOfSteps = 0;
 		
 		this.dontChangeIndexes = indexes;
-		
-		this.ran = new Random();
 	}
 	
 	/**
@@ -63,7 +66,7 @@ public class SudokuSolver {
 				System.out.println("Current State: "+solution.toString());
 				
 				//print out number of conflicts for the given state
-				currentConflictValue = this.calculateNumOfConflicts(solution);
+				currentConflictValue = Sudoku.calculateNumOfConflicts(solution);
 				System.out.println("Number of conflicts: " +currentConflictValue);
 				
 				//print out number of iterations taken so far
@@ -71,13 +74,13 @@ public class SudokuSolver {
 				System.out.println("");
 				
 				//create successor states in a list
-				Map<Integer,Vector<Integer>> nStatesAndConflicts = this.generateNeighborStatesAndConflicts(solution);
+				Map<Vector<Integer>,Integer> nStatesAndConflicts = this.generateNeighborStatesAndConflicts(solution);
 				
 				//find the neighbor with the lowest conflict value
 				int lowest = 100;//arbitrary number to find lowest
-				for(Integer key: nStatesAndConflicts.keySet())
+				for(Integer value: nStatesAndConflicts.values())
 				{
-					int current = key;
+					int current = value;
 					if(current < lowest)
 						lowest = current;
 				}
@@ -88,13 +91,22 @@ public class SudokuSolver {
 				//then set current equal to neighbor
 				//else get out of while loop
 				if(lowest < currentConflictValue)
-					solution = nStatesAndConflicts.get(lowest);
+				{
+					for(Vector<Integer> board: nStatesAndConflicts.keySet())
+					{
+						if(nStatesAndConflicts.get(board).equals(lowest))
+							{
+								solution = board;
+								break;
+							}
+					}
+				}
 				else
 					keepHillClimbing = false;
 
 			}
 
-			currentConflictValue = this.calculateNumOfConflicts(solution);
+			currentConflictValue = Sudoku.calculateNumOfConflicts(solution);
 			
 			//check and see if hill climber hit a local minimum or global min
 			if(currentConflictValue == 0)
@@ -105,7 +117,7 @@ public class SudokuSolver {
 			{
 				//create a new intial State
 				solution = Sudoku.createNewInitialBoard(solution, this.dontChangeIndexes);
-				int tempConflictValue = this.calculateNumOfConflicts(solution);
+				int tempConflictValue = Sudoku.calculateNumOfConflicts(solution);
 				
 //				while(tempConflictValue > currentConflictValue)
 //				{
@@ -125,9 +137,9 @@ public class SudokuSolver {
 	 * @param initState
 	 * @return
 	 */
-	public Map<Integer,Vector<Integer>> generateNeighborStatesAndConflicts(Vector<Integer>initState)
+	public Map<Vector<Integer>,Integer> generateNeighborStatesAndConflicts(Vector<Integer>initState)
 	{
-		Map<Integer,Vector<Integer>> neighbors = new HashMap<Integer,Vector<Integer>>();
+		Map<Vector<Integer>,Integer> neighbors = new HashMap<Vector<Integer>,Integer>();
 		
 		for(int i = 0; i < initState.size(); i++)
 		{
@@ -136,15 +148,14 @@ public class SudokuSolver {
 			{
 				//create a neighbor state
 				Vector<Integer> neighborState = new Vector<Integer>(initState);
-				
 
-				int ranNum = this.ran.nextInt(4)+1;
+				int ranNum = ran.nextInt(4)+1;
 				
 				//replace number and add to neighbors
 				neighborState.set(i, ranNum);
 				
-				int conflict = this.calculateNumOfConflicts(neighborState);
-				neighbors.put(conflict, neighborState);
+				int conflict = Sudoku.calculateNumOfConflicts(neighborState);
+				neighbors.put(neighborState,conflict);
 			}
 		}
 
@@ -152,149 +163,6 @@ public class SudokuSolver {
 		
 	}
 		
-	/**
-	 * This evaluation function scores each state vector based on how well it
-	 * fits the sudoku board.
-	 * 
-	 * My way is to calculate num of conflicts by row, by col, and by square
-	 * @return
-	 */
-	public int calculateNumOfConflicts(Vector<Integer> state)
-	{
-		int conflict = 0;
-		
-		Integer arr[] = {1,2,3,4};
-		
-		Set<Integer> checkSet = new HashSet<Integer>(Arrays.asList(arr));
-
-		//calculate row conflicts
-		for(int i = 0; i < state.size();i++)
-		{	
-			if(i % 4 == 0 && i!=0)
-			{
-				//reinitialize set
-				checkSet.clear();
-				checkSet.addAll(Arrays.asList(arr));
-			}
-			if(checkSet.contains(state.get(i)))
-			{
-				//remove element
-				checkSet.remove(state.get(i));
-			}
-			else
-			{
-				//conflict
-				conflict++;
-			}
-			
-		}
-		//reinitialize set
-		checkSet.clear();
-		checkSet.addAll(Arrays.asList(arr));
-		
-		//calculate col conflicts
-		for(int i = 0; i < 4;i++)
-		{
-			int index = i;
-			for(int j = 0; j < state.size(); j+=4)
-			{
-				int x = state.get(index);
-				if(checkSet.contains(x))
-				{
-					//remove element
-					checkSet.remove(x);
-				}
-				else
-				{
-					//conflict
-					conflict++;
-				}
-				index+=4;
-			}
-			//reinitialize set
-			checkSet.clear();
-			checkSet.addAll(Arrays.asList(arr));
-		}
-		
-		//calculate conflicts in 2x2 square
-		//(0,1,4,5) (2,3,6,7) (8,9,12,13) (10,11,14,15)
-		Set<Integer>square1 = new HashSet<Integer>(checkSet);
-		Set<Integer>square2 = new HashSet<Integer>(checkSet);
-		Set<Integer>square3 = new HashSet<Integer>(checkSet);
-		Set<Integer>square4 = new HashSet<Integer>(checkSet);
-		
-		for(int i =0; i < state.size(); i++)
-		{
-			switch(i)
-			{
-			case 0://square1
-			case 1:
-			case 4:
-			case 5:
-				if(square1.contains(state.get(i)))
-				{
-					//remove element
-					square1.remove(state.get(i));
-				}
-				else
-				{
-					//conflict
-					conflict++;
-				}
-				
-				break;
-			case 2://square2
-			case 3:
-			case 6:
-			case 7:
-				if(square2.contains(state.get(i)))
-				{
-					//remove element
-					square2.remove(state.get(i));
-				}
-				else
-				{
-					//conflict
-					conflict++;
-				}
-				break;
-			case 8://square3
-			case 9:
-			case 12:
-			case 13:
-				if(square3.contains(state.get(i)))
-				{
-					//remove element
-					square3.remove(state.get(i));
-				}
-				else
-				{
-					//conflict
-					conflict++;
-				}
-				break;
-			case 10://square4
-			case 11:
-			case 14:
-			case 15:
-				if(square4.contains(state.get(i)))
-				{
-					//remove element
-					square4.remove(state.get(i));
-				}
-				else
-				{
-					//conflict
-					conflict++;
-				}
-				break;
-			default:
-				break;
-			}
-		}
-
-		return conflict;
-	}
 	/**
 	 * Used to test if the SudokuSolver solves the Sudoku Puzzle
 	 * @param args

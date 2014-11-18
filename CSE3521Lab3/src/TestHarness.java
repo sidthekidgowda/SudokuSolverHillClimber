@@ -38,7 +38,7 @@ public class TestHarness {
 		try
 		{
 			/*
-			 * parse the input file and create the initial sudoku board
+			 * parse the input file and create the initial Sudoku board
 			 */
 			board = new Sudoku(new BufferedReader(new FileReader(args[0])));
 		}
@@ -51,7 +51,7 @@ public class TestHarness {
 		//create SudokuSolver object and SudukoSolverGA object
 		//call hill Climber function and geneticAlgorithm and they will return the solution state
 		agentHill = new SudokuSolver(board.getIndexesOfInitialBoard());
-		agentGA = new SudokuSolverGA(board.getSudokuBoard());
+		agentGA = new SudokuSolverGA(board.getSudokuBoard(), board.getIndexesOfInitialBoard());
 		
 		System.out.println("Sudoku problem solved using the Hill Climber Algorithm");
 		solStateHillClimber = agentHill.hillClimber(board.getSudokuBoard());
@@ -77,9 +77,11 @@ public class TestHarness {
 		
 		
 		//now do the genetic algorithm
-		
 		System.out.println("Sudoku problem solved using the Genetic Algorithm");
+
+		//call the genetic Algorithm
 		solStateGeneticAlg = agentGA.geneticAlgorithm();
+		
 		//print out the solution state of the genetic algorithm
 		System.out.println("Solution State");
 		for(int i = 0; i < solStateGeneticAlg.size(); i++)
